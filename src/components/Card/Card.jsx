@@ -1,7 +1,9 @@
 import React from "react";
 import { StyleNameProduct, WrraperDisscountText, WrraperCard, WrraperPriceText, WrraperReportText, WrapperStyleTextSell } from "./styled";
 import { StarFilled } from "@ant-design/icons"
-const Card = () => {
+const Card = (props) => {
+    const { countInstock, description, type, discount, image, name, price, rating, selled } = props
+
     return (
         <WrraperCard
             hoverable
@@ -11,18 +13,18 @@ const Card = () => {
             cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
         >
             <StyleNameProduct>
-                product1
+                {name}
             </StyleNameProduct>
             <WrraperReportText>
                 <span>
-                    <span>4.96</span> <StarFilled style={{ fontSize: '12px', color: 'rgb(253,216,54)' }} />
+                    <span>{rating}</span> <StarFilled style={{ fontSize: '12px', color: 'rgb(253,216,54)' }} />
                 </span>
-                <WrapperStyleTextSell>| Đã bán 1000+</WrapperStyleTextSell>
+                <WrapperStyleTextSell>| Đã bán {selled || 0}+</WrapperStyleTextSell>
             </WrraperReportText>
             <WrraperPriceText>
-                <span style={{ marginRight: '8px' }}>100.000 vnd</span>
+                <span style={{ marginRight: '8px' }}>{price}vnd</span>
                 <WrraperDisscountText>
-                    -5%
+                    {discount || 5}%
                 </WrraperDisscountText>
             </WrraperPriceText>
         </WrraperCard>

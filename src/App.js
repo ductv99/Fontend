@@ -1,24 +1,20 @@
-import React, { Fragment, useEffect } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { routes } from './routes';
 import Default from './components/Default/Default';
 import { isJsonString } from './untils';
 import { jwtDecode } from "jwt-decode";
 import * as UserService from './service/UserService'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { updateUser } from "./redux/slides/userSile";
-import axios from 'axios';
-
+import NotFoundPage from "./pages/NotFoundPage/NotFoundPage"
 export default function App() {
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.user)
 
-  useEffect(() => {
-    const { storeData, decode } = handleDecoded()
-    if (decode?.id) {
-      handleGetDetailsUser(decode?.id, storeData)
-    }
-  }, [])
 
+
+  // console.log("user", user?.isAdmin)
   const handleDecoded = () => {
     let storeData = localStorage.getItem('access_token')
     let decode = {}
@@ -51,6 +47,34 @@ export default function App() {
   }
 
 
+  //   return (
+  //     <div>
+  //       < Router >
+  //         <Routes>
+  //           {routes.map((routes) => {
+  //             const Page = routes.page
+  //             const isCheckAuthencation = routes.isPrivate
+  //             console.log("ischeck", routes.isShowHeader)
+  //             const Layout = routes.isShowHeader ? Default : Fragment
+  //             return (
+  //               <Route key={routes.path} path={routes.path} element={
+  //                 <Layout>
+  //                   <Page />
+  //                 </Layout>
+  //               } />
+  //             )
+  //           })}
+  //         </Routes>
+  //       </Router >
+  //     </div >
+  //   )
+  // }
+  useEffect(() => {
+    const { storeData, decode } = handleDecoded()
+    if (decode?.id) {
+      handleGetDetailsUser(decode?.id, storeData)
+    }
+  }, [])
 
   return (
     <div>
@@ -58,13 +82,24 @@ export default function App() {
         <Routes>
           {routes.map((routes) => {
             const Page = routes.page
+            const isCheckAuthencation = routes.isPrivate
             const Layout = routes.isShowHeader ? Default : Fragment
             return (
-              <Route key={routes.path} path={routes.path} element={
-                <Layout>
-                  <Page />
-                </Layout>
-              } />
+              <Route
+                key={routes.path}
+                path={routes.path}
+                element={
+                  isCheckAuthencation && !user?.isAdmin ? (
+                    <Layout >
+                      <NotFoundPage />
+                    </Layout>
+                  ) : (
+                    <Layout>
+                      <Page />
+                    </Layout>
+                  )
+                }
+              />
             )
           })}
         </Routes>

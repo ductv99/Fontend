@@ -21,16 +21,16 @@ const ProfilePage = () => {
     const [phone, setPhone] = useState("")
     const [address, setAddress] = useState("")
     const [avatar, setAvatar] = useState("")
-    const dispatch = useDispatch();
 
     const mutation = useMutationHook(
         (data) => {
             const { id, access_token, ...rests } = data
             UserService.updateUser(id, rests, access_token)
         })
+    const dispatch = useDispatch();
+
     const { data, isPending, isSuccess, isError } = mutation
 
-    
     useEffect(() => {
         setEmail(user.email);
         setName(user.name);
@@ -40,12 +40,13 @@ const ProfilePage = () => {
     }, [user])
 
     useEffect(() => {
-        if (data?.status === 'success') {
+        if (isSuccess && data?.status === "success") {
             message.success()
             handleGetDetailsUser(user?.id, user?.access_token)
-            console.log("dd", isSuccess)
+        } else if (isError) {
             message.error()
         }
+
     }, [isSuccess, isError])
 
     const handleOnchangeEmail = (value) => {
