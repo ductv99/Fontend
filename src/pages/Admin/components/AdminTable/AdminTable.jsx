@@ -25,6 +25,9 @@ const AdminTable = (props) => {
                     }}
                     columns={columns}
                     dataSource={data}
+                    {
+                    ...props
+                    }
                 />
             </Loading>
         </div>
