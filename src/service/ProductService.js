@@ -24,3 +24,14 @@ export const updateProduct = async (id, data, access_token) => {
     })
     return res.data
 }
+
+export const deleteProduct = async (id, access_token) => {
+    const res = await axiosJWT.delete(`${process.env.REACT_APP_API_KEY}/product/delete/${id}`, {
+        headers: {
+            token: `Bearer ${access_token}`
+        }
+    })
+    return res.data
+}
+
+

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { routes } from './routes';
 import Default from './components/Default/Default';
@@ -16,7 +16,7 @@ export default function App() {
 
   // console.log("user", user?.isAdmin)
   const handleDecoded = () => {
-    let storeData = localStorage.getItem('access_token')
+    let storeData = user?.access_token || localStorage.getItem('access_token')
     let decode = {}
     if (storeData && isJsonString(storeData)) {
       storeData = JSON.parse(storeData)
@@ -46,6 +46,13 @@ export default function App() {
     dispatch(updateUser({ ...res?.data, access_token: token }))
   }
 
+  useEffect(() => {
+    const { storeData, decode } = handleDecoded()
+    if (decode?.id) {
+      handleGetDetailsUser(decode?.id, storeData)
+      // console.log("bug", storeData)
+    }
+  }, [])
 
   //   return (
   //     <div>
@@ -69,12 +76,7 @@ export default function App() {
   //     </div >
   //   )
   // }
-  useEffect(() => {
-    const { storeData, decode } = handleDecoded()
-    if (decode?.id) {
-      handleGetDetailsUser(decode?.id, storeData)
-    }
-  }, [])
+
 
   return (
     <div>

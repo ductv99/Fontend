@@ -38,3 +38,8 @@ export const updateUser = async (id, data, access_token) => {
     })
     return res.data
 }
+
+export const getAllUser = async () => {
+    const res = await axios.get(`${process.env.REACT_APP_API_KEY}/user/get-all`)
+    return res.data
+}

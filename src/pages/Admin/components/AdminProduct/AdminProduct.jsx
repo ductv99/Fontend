@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { WrapperHeader, WrapperUploadFile } from "./styled"
-import { PlusCircleOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { Button, Modal, Form } from "antd";
+import { PlusCircleOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Form, Space } from "antd";
 import AdminTable from "../AdminTable/AdminTable";
 import InputComponent from "../../../../components/InputComponent/InputComponent";
 import { getBase64 } from "../../../../untils";
@@ -12,12 +12,18 @@ import * as message from '../../../../components/Message/Message'
 import { useQuery } from "@tanstack/react-query";
 import DrawerComponent from "../../../../components/DrawerComponent/DrawerComponent";
 import { useSelector } from "react-redux";
+import ModalComponent from "../../../../components/ModalComponent/ModalComponent";
 
 const AdminProduct = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPendingUpdate, setIsPendingUpdate] = useState(false)
     const user = useSelector((state) => state?.user)
-
+    const [isModalOpenDelele, setIsModalOpenDelele] = useState(false)
+    // const [searchText, setSearchText] = useState('');
+    // const [searchedColumn, setSearchedColumn] = useState('');
+    const searchInput = useRef(null)
+    const [rowSelected, setRowSelected] = useState('')
+    const [isOpenDrawer, setIsOpenDrawer] = useState(false)
     const [stateProduct, setStateProduct] = useState({
         name: '',
         price: '',
@@ -38,8 +44,6 @@ const AdminProduct = () => {
         type: '',
     })
 
-    const [rowSelected, setRowSelected] = useState('')
-    const [isOpenDrawer, setIsOpenDrawer] = useState(false)
     const mutation = useMutationHook(
         data => {
             // const { ...rest } = data
@@ -54,11 +58,20 @@ const AdminProduct = () => {
                 id,
                 access_token,
                 ...rests } = data
-            ProductService.updateProduct(id, rests, access_token)
-        }
+            const res = ProductService.updateProduct(id, { ...rests }, access_token)
+            return res
+        },
+    )
+    const mutationDelete = useMutationHook(
+        (data) => {
+            const { id, access_token, } = data
+            const res = ProductService.deleteProduct(id, access_token)
+            return res
+        },
     )
 
-    const { isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
+    const { isPending: isPendingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
+    const { data: dataDelete, isPending: isPendingDelete, isSuccess: isSuccessDelete, isError: isErrorDelete } = mutationDelete
     const handleOnchange = (e) => {
         setStateProduct({
             ...stateProduct,
@@ -105,15 +118,18 @@ const AdminProduct = () => {
 
     const onFinish = () => {
         mutation.mutate(stateProduct)
+        setIsModalOpen(false);
+        queryProduct.refetch()
         // console.log('onFinish', stateProduct)
     }
     const { isPending, isSuccess, isError } = mutation
-    // const { isPending: isPendingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
+
 
     useEffect(() => {
         if (isSuccess) {
             handleCancel()
             message.success()
+            // queryProduct.refetch()
         } else if (isError) {
             message.error()
         }
@@ -144,10 +160,12 @@ const AdminProduct = () => {
 
         return res
     }
-    const { isLoading, data: products } = useQuery({
+    const queryProduct = useQuery({
         queryKey: ['products'],
         queryFn: getAllProduct,
     });
+
+    const { isLoading, data: products } = queryProduct
 
     const dataTable = products?.data?.length && products?.data?.map((product) => {
         return {
@@ -169,19 +187,47 @@ const AdminProduct = () => {
         }
         setIsPendingUpdate(false)
     }
+    useEffect(() => {
+        if (isSuccessUpdated) {
+            handleCloseDrawer()
+            message.success()
+        } else if (isErrorUpdated) {
+            message.error()
+        }
+    }, [isSuccessUpdated])
 
+    useEffect(() => {
+        if (dataDelete?.status === "success") {
+            handleCancelDelete()
+            message.success()
+        } else if (isErrorDelete) {
+            message.error()
+        }
+    }, [isSuccessDelete])
+
+    //when click data not set firt time 
+    useEffect(() => {
+        if (rowSelected) {
+            setIsPendingUpdate(true)
+            fetchGetDetailProduct(rowSelected)
+        }
+    }, [rowSelected])
+
+    useEffect(() => {
+        form.setFieldsValue(stateProductDetail)
+        // console.log("eff", stateProductDetail)
+    }, [form, stateProductDetail])
 
 
     // console.log("data", stateProductDetail)
     const handleDetailProduct = () => {
-        if (rowSelected) {
-            setIsPendingUpdate(true)
-            fetchGetDetailProduct(rowSelected)
-            setIsOpenDrawer(true)
-        }
+        // if (rowSelected) {
+        //     setIsPendingUpdate(true)
+        //     fetchGetDetailProduct(rowSelected)
+        // }
+        setIsOpenDrawer(true)
 
     }
-
 
     const onUpdataProduct = () => {
 
@@ -205,55 +251,120 @@ const AdminProduct = () => {
             countInstock,
             type,
             token: user?.access_token,
-        });
+        }, {
+            onSettled: () => {
+                queryProduct.refetch()
+            }
+        }
+        );
     }
-    useEffect(() => {
-        if (isSuccessUpdated) {
-            handleCloseDrawer()
-            message.success()
-        } else if (isErrorUpdated) {
-            message.error()
-        }
-    }, [isSuccessUpdated])
 
-    //when click data not set firt time 
-    useEffect(() => {
-        if (rowSelected) {
-            fetchGetDetailProduct(rowSelected)
-        }
-    }, [rowSelected])
+    const handleCancelDelete = () => {
+        setIsModalOpenDelele(false)
+    }
 
-    useEffect(() => {
-        form.setFieldsValue(stateProductDetail)
-        // console.log("eff", stateProductDetail)
-    }, [form, stateProductDetail])
-
-
+    const DeleteProduct = () => {
+        mutationDelete.mutate({ id: rowSelected, token: user?.access_token },
+            {
+                onSettled: () => {
+                    queryProduct.refetch()
+                }
+            }
+        )
+    }
+    const handleSearch = (selectedKeys, confirm, dataIndex) => {
+        confirm();
+        // setSearchText(selectedKeys[0]);
+        // setSearchedColumn(dataIndex);
+    };
+    const handleReset = (clearFilters) => {
+        clearFilters();
+        // setSearchText('');
+    };
     const renderAction = () => {
         return (
             <div>
-                <DeleteOutlined style={{ color: 'red', fontSize: '30px', cursor: 'pointer' }} />
+                <DeleteOutlined style={{ color: 'red', fontSize: '30px', cursor: 'pointer' }} onClick={() => { setIsModalOpenDelele(true) }} />
                 <EditOutlined style={{ color: 'orange', fontSize: '30px', cursor: 'pointer' }} onClick={handleDetailProduct} />
             </div>
         )
     }
+
+
+    const getColumnSearchProps = (dataIndex) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+            <div
+                style={{
+                    padding: 8,
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+            >
+                <InputComponent
+                    ref={searchInput}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                    style={{
+                        marginBottom: 8,
+                        display: 'block',
+                    }}
+                />
+                <Space>
+                    <Button
+                        type="primary"
+                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Lọc
+                    </Button>
+                    <Button
+                        onClick={() => clearFilters && handleReset(clearFilters)}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Xóa
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered) => (
+            <SearchOutlined
+                style={{
+                    color: filtered ? '#1677ff' : undefined,
+                }}
+            />
+        ),
+        onFilter: (value, record) =>
+            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+    });
     const columns = [
         {
             title: 'Tên sản phẩm',
             dataIndex: 'name',
-            // render: (text) => <a>{text}</a>,
+            sorter: (a, b) => a.name.length - b.name.length,
+            ...getColumnSearchProps('name')
         },
         {
             title: 'Giá',
             dataIndex: 'price',
+            sorter: (a, b) => a.price - b.price
         },
         {
             title: 'Loại sản phẩm',
             dataIndex: 'type',
+            sorter: (a, b) => a.type - b.type
         },
         {
             title: 'Đánh giá',
             dataIndex: 'rating',
+            sorter: (a, b) => a.rating - b.rating
         },
         {
             title: 'Hành động',
@@ -261,7 +372,6 @@ const AdminProduct = () => {
             render: renderAction,
         },
     ];
-    // console.log("res", data)
     return (
         <div>
             <WrapperHeader>
@@ -288,7 +398,7 @@ const AdminProduct = () => {
                     />
                 </div>
             </div>
-            <Modal title="Tạo sản phẩm mới" open={isModalOpen} onCancel={handleCancel} footer={null}>
+            <ModalComponent title="Tạo sản phẩm mới" open={isModalOpen} onCancel={handleCancel} footer={null}>
                 <Loading isPending={isPending}>
                     <Form
                         name="basic"
@@ -415,9 +525,9 @@ const AdminProduct = () => {
                         </Form.Item>
                     </Form>
                 </Loading>
-            </Modal>
+            </ModalComponent>
             <DrawerComponent title="Cập nhật sản phẩm" isOpen={isOpenDrawer} onClose={() => setIsOpenDrawer(false)} width="520px" >
-                <Loading isPending={isPendingUpdate}>
+                <Loading isPending={isPendingUpdate || isPendingUpdated}>
                     <Form
                         name="basic"
                         labelCol={{
@@ -542,6 +652,13 @@ const AdminProduct = () => {
                     </Form>
                 </Loading>
             </DrawerComponent>
+            <ModalComponent title="Xóa sản phẩm" open={isModalOpenDelele} onCancel={handleCancelDelete} onOk={DeleteProduct}>
+                <Loading isPending={isPendingDelete}>
+                    <>
+                        Bạn có chắc chắn muốn xóa ?
+                    </>
+                </Loading>
+            </ModalComponent>
         </div >
     );
 }
