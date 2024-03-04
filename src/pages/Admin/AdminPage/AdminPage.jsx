@@ -49,6 +49,7 @@ const AdminPage = () => {
                 <div style={{ flex: 1, padding: '15px' }}>
                     {renderPage(slectedKey)}
                 </div>
+                
 
             </div>
         </>

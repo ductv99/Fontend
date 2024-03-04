@@ -69,9 +69,18 @@ const AdminProduct = () => {
             return res
         },
     )
+    const mutationDeleteMany = useMutationHook(
+        (data) => {
+            const { access_token, ...ids } = data
+            const res = ProductService.deleteManyProduct(ids, access_token)
+            return res
+        },
+    )
 
     const { isPending: isPendingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
     const { data: dataDelete, isPending: isPendingDelete, isSuccess: isSuccessDelete, isError: isErrorDelete } = mutationDelete
+    const { data: dataDeleteMany, isSuccess: isSuccessDeleteMany, isError: isErrorDeleteMany } = mutationDeleteMany
+
     const handleOnchange = (e) => {
         setStateProduct({
             ...stateProduct,
@@ -135,6 +144,16 @@ const AdminProduct = () => {
         }
     }, [isSuccess])
 
+    useEffect(() => {
+        if (isSuccessDeleteMany && dataDeleteMany?.status === "success") {
+            handleCancel()
+            message.success()
+            // queryProduct.refetch()
+        } else if (isErrorDeleteMany) {
+            message.error()
+        }
+    }, [isSuccessDeleteMany])
+
     const handleOnchangeAvatar = async ({ fileList }) => {
         const file = fileList[0]
         if (!file.url && !file.preview) {
@@ -144,6 +163,16 @@ const AdminProduct = () => {
             ...stateProduct,
             image: file.preview
         })
+    }
+    const handleDeleteManyProduct = (ids) => {
+        // console.log("idDelete", _id)
+        mutationDeleteMany.mutate({ ids: ids, token: user?.access_token },
+            {
+                onSettled: () => {
+                    queryProduct.refetch()
+                }
+            }
+        )
     }
     const handleOnchangeAvatarDetail = async ({ fileList }) => {
         const file = fileList[0]
@@ -157,9 +186,9 @@ const AdminProduct = () => {
     }
     const getAllProduct = async () => {
         const res = await ProductService.getAllProduct()
-
         return res
     }
+
     const queryProduct = useQuery({
         queryKey: ['products'],
         queryFn: getAllProduct,
@@ -207,11 +236,11 @@ const AdminProduct = () => {
 
     //when click data not set firt time 
     useEffect(() => {
-        if (rowSelected) {
+        if (rowSelected && isOpenDrawer) {
             setIsPendingUpdate(true)
             fetchGetDetailProduct(rowSelected)
         }
-    }, [rowSelected])
+    }, [rowSelected, isOpenDrawer])
 
     useEffect(() => {
         form.setFieldsValue(stateProductDetail)
@@ -229,7 +258,7 @@ const AdminProduct = () => {
 
     }
 
-    const onUpdataProduct = () => {
+    const onUpdateProduct = () => {
 
         const {
             name,
@@ -383,22 +412,24 @@ const AdminProduct = () => {
                 >
                     <PlusCircleOutlined style={{ fontSize: '60px' }} />
                 </Button>
-                <div style={{ marginTop: '20px' }}>
-                    <AdminTable
-                        columns={columns}
-                        data={dataTable}
-                        isLoading={isLoading}
-                        onRow={(record, rowIndex) => {
-                            return {
-                                onClick: event => {
-                                    setRowSelected(record._id)
-                                }
-                            }
-                        }}
-                    />
-                </div>
             </div>
-            <ModalComponent title="Tạo sản phẩm mới" open={isModalOpen} onCancel={handleCancel} footer={null}>
+            <div style={{ marginTop: '20px' }}>
+                <AdminTable
+                    columns={columns}
+                    data={dataTable}
+                    isLoading={isLoading}
+                    handleDeleteMany={handleDeleteManyProduct}
+                    onRow={(record, rowIndex) => {
+                        return {
+                            onClick: event => {
+                                setRowSelected(record._id)
+                            }
+                        }
+                    }}
+                />
+            </div>
+
+            <ModalComponent forceRender title="Tạo sản phẩm mới" open={isModalOpen} onCancel={handleCancel} footer={null}>
                 <Loading isPending={isPending}>
                     <Form
                         name="basic"
@@ -542,7 +573,7 @@ const AdminProduct = () => {
                         initialValues={{
                             remember: true,
                         }}
-                        onFinish={onUpdataProduct}
+                        onFinish={onUpdateProduct}
                         autoComplete="on"
                         form={form}
                     >
@@ -652,13 +683,14 @@ const AdminProduct = () => {
                     </Form>
                 </Loading>
             </DrawerComponent>
-            <ModalComponent title="Xóa sản phẩm" open={isModalOpenDelele} onCancel={handleCancelDelete} onOk={DeleteProduct}>
+            <ModalComponent forceRender title="Xóa sản phẩm" open={isModalOpenDelele} onCancel={handleCancelDelete} onOk={DeleteProduct}>
                 <Loading isPending={isPendingDelete}>
                     <>
                         Bạn có chắc chắn muốn xóa ?
                     </>
                 </Loading>
             </ModalComponent>
+
         </div >
     );
 }
