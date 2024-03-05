@@ -24,3 +24,20 @@ export function getItem(label, key, icon, children, type) {
         type,
     };
 }
+
+export const renderOptions = (arr) => {
+    let results = []
+    if (arr) {
+        results = arr?.map((opt) => {
+            return {
+                value: opt,
+                label: opt
+            }
+        })
+    }
+    results.push({
+        label: "Thêm loại sản phẩm",
+        value: 'add_type'
+    })
+    return results
+}

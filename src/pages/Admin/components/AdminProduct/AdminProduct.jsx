@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { WrapperHeader, WrapperUploadFile } from "./styled"
 import { PlusCircleOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Form, Space } from "antd";
+import { Button, Form, Select, Space } from "antd";
 import AdminTable from "../AdminTable/AdminTable";
 import InputComponent from "../../../../components/InputComponent/InputComponent";
-import { getBase64 } from "../../../../untils";
+import { getBase64, renderOptions } from "../../../../untils";
 import { useMutationHook } from '../../../../hook/userMutationHook'
 import * as ProductService from '../../../../service/ProductService'
 import Loading from "../../../../components/Loading/Loading";
@@ -17,6 +17,7 @@ import ModalComponent from "../../../../components/ModalComponent/ModalComponent
 const AdminProduct = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPendingUpdate, setIsPendingUpdate] = useState(false)
+    const [typeSelect, setTypeSelect] = useState('')
     const user = useSelector((state) => state?.user)
     const [isModalOpenDelele, setIsModalOpenDelele] = useState(false)
     // const [searchText, setSearchText] = useState('');
@@ -30,8 +31,9 @@ const AdminProduct = () => {
         description: '',
         rating: '',
         image: '',
-        countInstock: '',
+        countInStock: '',
         type: '',
+        newType: ''
     })
 
     const [stateProductDetail, setStateProductDetail] = useState({
@@ -40,7 +42,7 @@ const AdminProduct = () => {
         description: '',
         rating: '',
         image: '',
-        countInstock: '',
+        countInStock: '',
         type: '',
     })
 
@@ -126,7 +128,16 @@ const AdminProduct = () => {
     };
 
     const onFinish = () => {
-        mutation.mutate(stateProduct)
+        const params = {
+            name: stateProduct.name,
+            price: stateProduct.price,
+            description: stateProduct.description,
+            rating: stateProduct.rating,
+            image: stateProduct.image,
+            countInStock: stateProduct.countInStock,
+            type: stateProduct.type === "add_type" ? stateProduct.newType : stateProduct.type
+        }
+        mutation.mutate(params)
         setIsModalOpen(false);
         queryProduct.refetch()
         // console.log('onFinish', stateProduct)
@@ -188,13 +199,25 @@ const AdminProduct = () => {
         const res = await ProductService.getAllProduct()
         return res
     }
+    const fetchProductAllType = async () => {
+        const res = await ProductService.getAllProductType()
+        return res
+    }
 
     const queryProduct = useQuery({
         queryKey: ['products'],
         queryFn: getAllProduct,
     });
 
+    const queryProductType = useQuery({
+        queryKey: ['products-Type'],
+        queryFn: fetchProductAllType,
+    });
+    // console.log("type", queryProductType)
+
     const { isLoading, data: products } = queryProduct
+
+
 
     const dataTable = products?.data?.length && products?.data?.map((product) => {
         return {
@@ -266,7 +289,7 @@ const AdminProduct = () => {
             description,
             rating,
             image,
-            countInstock,
+            countInStock,
             type,
         } = stateProductDetail;
 
@@ -277,7 +300,7 @@ const AdminProduct = () => {
             description,
             rating,
             image,
-            countInstock,
+            countInStock,
             type,
             token: user?.access_token,
         }, {
@@ -286,6 +309,13 @@ const AdminProduct = () => {
             }
         }
         );
+    }
+
+    const handleChangeSelect = (value) => {
+        setStateProduct({
+            ...stateProduct,
+            type: value
+        })
     }
 
     const handleCancelDelete = () => {
@@ -318,8 +348,6 @@ const AdminProduct = () => {
             </div>
         )
     }
-
-
     const getColumnSearchProps = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
             <div
@@ -472,8 +500,31 @@ const AdminProduct = () => {
                                 },
                             ]}
                         >
-                            <InputComponent value={setStateProduct.type} onChange={handleOnchange} name="type" />
+                            <Select
+                                name="type"
+                                value={stateProduct.type}
+                                // style={{ width: 120 }}
+                                onChange={handleChangeSelect}
+                                options={renderOptions(queryProductType?.data?.data)}
+                            />
                         </Form.Item>
+                        {stateProduct.type === 'add_type' && (
+                            <Form.Item
+                                label='Loại sản phẩm mới'
+                                name="newType"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Vui lòng nhập loại sản phẩm',
+                                    },
+                                ]}
+                            >
+                                {stateProduct.type === 'add_type' && <InputComponent
+                                    value={stateProduct.newType} onChange={handleOnchange}
+                                    name="newType" />}
+                            </Form.Item>
+                        )}
+
                         <Form.Item
                             label="Hàng trong kho"
                             name="countInStock"
@@ -513,6 +564,12 @@ const AdminProduct = () => {
                         <Form.Item
                             label="Mô tả sản phẩm"
                             name="description"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Vui lòng nhập mô tả',
+                                },
+                            ]}
                         >
                             <InputComponent value={setStateProduct.description} onChange={handleOnchange} name="description" />
                         </Form.Item>

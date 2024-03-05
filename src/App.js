@@ -49,8 +49,12 @@ export default function App() {
   useEffect(() => {
     const { storeData, decode } = handleDecoded()
     if (decode?.id) {
-      handleGetDetailsUser(decode?.id, storeData)
-      // console.log("bug", storeData)
+      try {
+        handleGetDetailsUser(decode?.id, storeData)
+        // console.log("bug", storeData)
+      } catch (error) {
+        console.log("err details")
+      }
     }
   }, [])
 

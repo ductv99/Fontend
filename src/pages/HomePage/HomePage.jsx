@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import TypeProduct from "../../components/TypeProduct/TypeProduct";
 import { WrapperTypeProduct, WrapperProducts, WrapperButtonMore } from "./styled";
 import Banner from "../../components/Banner/Banner";
@@ -10,13 +10,21 @@ import Loading from "../../components/Loading/Loading";
 import { useDebounce } from "../../hook/useDebounce";
 
 const HomePage = () => {
-    const category = ['category 1', 'category 2', 'category 3']
+    const [category, setCategory] = useState([])
     const searchProduct = useSelector((state) => state?.product?.search)
     const searchDebounce = useDebounce(searchProduct, 1000)
-    const [loading, setLoading] = useState(false)
+    // const [loading, setLoading] = useState(false)
 
     const [limit, setLimit] = useState(6)
-
+    const fetchProductAllType = async () => {
+        const res = await ProductService.getAllProductType()
+        if (res?.status === "OK") {
+            setCategory(res?.data)
+        }
+    }
+    useEffect(() => {
+        fetchProductAllType()
+    }, [])
     const fetchProductAll = async (context) => {
         const limit = context?.queryKey && context?.queryKey[1]
         const search = context?.queryKey && context?.queryKey[2]
@@ -24,20 +32,17 @@ const HomePage = () => {
         // const regex = new RegExp(search, "i");
         const res = await ProductService.getAllProduct(search, limit)
         return res
-
     }
 
     const { isLoading, data: products, iskeepPreviousData } = useQuery({
         queryKey: ['products', limit, searchDebounce],
         queryFn: fetchProductAll,
-        retry: 3,
-        retryDelay: 1000,
         keepPreviousData: true
     });
 
 
     return (
-        <Loading isPending={loading || isLoading}>
+        <Loading isPending={isLoading}>
             <div style={{ width: '1270px', margin: '0 auto' }}>
                 <WrapperTypeProduct>
                     {category.map((item) => {
@@ -79,7 +84,7 @@ const HomePage = () => {
                                 setLimit((prev) => prev + 6)
                             }}
                             styleButton={{
-                                border: `1px solid rgb(11,116,229)`, color: 'rgb(11,116,229',
+                                border: `1px solid rgb(11,116,229)`,
                                 width: '240px', height: '38px', borderRadius: '4px',
                                 color: `${products?.total === products?.data?.length ? '#ccc' : 'rgb(11,116,229)'}`
                             }}
@@ -88,7 +93,7 @@ const HomePage = () => {
                     </div>
                 </div >
             </div>
-        </Loading>
+        </Loading >
     );
 }
 
