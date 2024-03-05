@@ -3,7 +3,8 @@ import { StyleNameProduct, WrraperDisscountText, WrraperCard, WrraperPriceText, 
 import { StarFilled } from "@ant-design/icons"
 import { useNavigate } from "react-router-dom";
 const Card = (props) => {
-    const { countInstock, description, type, discount, image, name, price, rating, selled, id } = props
+    // countInStock, description, type,
+    const { discount, image, name, price, rating, selled, id } = props
     const navigate = useNavigate()
     const handleDetailProduct = (id) => {
         navigate(`/product-details/${id}`)
@@ -27,7 +28,7 @@ const Card = (props) => {
                 <WrapperStyleTextSell>| Đã bán {selled || 0}+</WrapperStyleTextSell>
             </WrraperReportText>
             <WrraperPriceText>
-                <span style={{ marginRight: '8px' }}>{price.toLocaleString()} vnd</span>
+                <span style={{ marginRight: '8px' }}>{price?.toLocaleString()} vnd</span>
                 <WrraperDisscountText>
                     - {discount || 5}%
                 </WrraperDisscountText>
