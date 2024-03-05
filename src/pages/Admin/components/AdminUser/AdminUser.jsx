@@ -236,6 +236,13 @@ const AdminUser = () => {
 
         },
         {
+            title: 'Địa chỉ',
+            dataIndex: 'address',
+            // sorter: (a, b) => a.phone - b.phone,
+            ...getColumnSearchProps('address')
+
+        },
+        {
             title: 'Loại tài khoản',
             dataIndex: 'isAdmin',
             sorter: (a, b) => a.isAdmin.length - b.isAdmin.length

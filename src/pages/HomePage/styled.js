@@ -19,12 +19,15 @@ export const WrapperButtonMore = styled(ButtonComponent)`
     }
     width: 100%;
     text-align: center;
+    cursor: ${(props) => props.disabled ? 'not-allowed' : 'pointer'};
+    color: ${(props) => props.disabled ? '#fff' : 'transparent'};
+
 `
 
 export const WrapperProducts = styled.div`
     display: flex;
     gap: 15px;
-    justify-content:center;
     margin-top:20px;
     flex-wrap: wrap;
 `
+

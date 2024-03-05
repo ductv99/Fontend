@@ -10,6 +10,7 @@ import *as UserService from "../../service/UserService"
 import { useDispatch } from 'react-redux'
 import { resetUser } from "../../redux/slides/userSile";
 import Loading from "../Loading/Loading";
+import { searchProduct } from "../../redux/slides/productSlide";
 
 
 
@@ -18,6 +19,7 @@ const Header = ({ isHisddensearch = false, isHisddenCart = false }) => {
     const user = useSelector((state) => state.user)
     const [userName, setUserName] = useState('')
     const [imageUser, setImageUser] = useState('')
+    const [search, setSearch] = useState('')
 
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(false)
@@ -33,14 +35,17 @@ const Header = ({ isHisddensearch = false, isHisddenCart = false }) => {
         setLoading(false)
 
     }
-    
+
     useEffect(() => {
         setUserName(user?.name)
         setImageUser(user?.avatar)
     }, [user?.name, user?.avatar])
 
 
-
+    const onSearch = (e) => {
+        setSearch(e.target.value)
+        dispatch(searchProduct(e.target.value))
+    }
     const content = (
         <div>
             {user?.isAdmin && (
@@ -64,13 +69,14 @@ const Header = ({ isHisddensearch = false, isHisddenCart = false }) => {
                         LD Store
                     </WrapperTextHeader>
                 </Col>
-                {!isHisddensearch && <Col span={13}>
+                {!isHisddensearch && <Col span={13} style={{ marginLeft: '150px' }}>
                     <ButtonInputSearch
                         size="large"
                         bordered={false}
-                        textbutton="Tìm kiếm"
-                        placeholder="input search text"
-                    // backgroundColorButton="#5a20c1"
+                        // textbutton="Tìm kiếm"
+                        placeholder="Tìm kiếm"
+                        // backgroundColorButton="#5a20c1"
+                        onChange={onSearch}
                     />
                 </Col>}
                 <Col span={6} style={{ display: 'flex', gap: '54px', alignItems: 'center' }}>
