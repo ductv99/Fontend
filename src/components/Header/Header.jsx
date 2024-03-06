@@ -17,6 +17,7 @@ import { searchProduct } from "../../redux/slides/productSlide";
 const Header = ({ isHisddensearch = false, isHisddenCart = false }) => {
     const navigate = useNavigate()
     const user = useSelector((state) => state.user)
+    const order = useSelector((state) => state?.order)
     const [userName, setUserName] = useState('')
     const [imageUser, setImageUser] = useState('')
     const [search, setSearch] = useState('')
@@ -104,13 +105,12 @@ const Header = ({ isHisddensearch = false, isHisddenCart = false }) => {
                             )}
                         </WrraperAccountHeader>
                     </Loading>
-                    {!isHisddenCart && <div>
-                        <Badge count={4} size="small">
+                    {!isHisddenCart && <div onClick={() => navigate('/order')} style={{ cursor: 'pointer' }}>
+                        <Badge count={order?.orderItems?.length} size="small">
                             <ShoppingCartOutlined style={{ fontSize: '30px', color: '#fff' }} />
                         </Badge>
                         <WrraperTextHeaderSmall>Giỏ hàng</WrraperTextHeaderSmall>
                     </div>}
-
                 </Col>
             </WrapperHeader>
         </div>);

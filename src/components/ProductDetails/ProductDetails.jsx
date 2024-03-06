@@ -14,20 +14,24 @@ import {
     WrapperQualityProduct,
     WrapperInputNumber
 } from './styled'
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as ProductService from '../../service/ProductService'
 import { useQuery } from "@tanstack/react-query";
 import Loading from "../../components/Loading/Loading";
+import { useLocation, useNavigate } from "react-router-dom";
+import { addOrderProduct } from "../../redux/slides/orderSlice";
 
 
 
 const ProductDetails = ({ idProduct }) => {
+    const navigate = useNavigate()
+    const location = useLocation()
     const [numberProduct, setNumberProduct] = useState(0)
     const user = useSelector((state) => state?.user)
+    const dispatch = useDispatch()
     const onChange = (value) => {
         setNumberProduct(Number(value))
     }
-
     const fetchGetDetailProduct = async (idProduct) => {
         const id = idProduct?.queryKey && idProduct.queryKey[1]
         const res = await ProductService.getDetailProduct(id)
@@ -55,7 +59,34 @@ const ProductDetails = ({ idProduct }) => {
         return stars;
     };
 
-
+    const handleAddOrderProduct = () => {
+        if (!user?.id) {
+            navigate('/sign-in', { state: location.pathname })
+        } else {
+            // name: { type: String, required: true },
+            // amount: { type: Number, required: true },
+            // image: { type: String, required: true },
+            // price: { type: Number, required: true },
+            // discount: { type: Number },
+            // product: {
+            //     type: mongoose.Schema.Types.ObjectId,
+            //         ref: 'Product',
+            //             required: true,
+            // },
+            dispatch(addOrderProduct({
+                orderItem: {
+                    name: productDetail?.name,
+                    amount: numberProduct,
+                    image: productDetail?.image,
+                    price: productDetail?.price,
+                    product: productDetail?._id,
+                    discount: productDetail?.discount,
+                    countInstock: productDetail?.countInStock
+                }
+            }))
+        }
+    }
+    // console.log("detail", productDetail)
     return (
         <Loading isPending={isLoading}>
             <Row style={{ padding: '16px', background: '#fff', borderRadius: '4px', height: 'fit-content' }}>
@@ -123,7 +154,7 @@ const ProductDetails = ({ idProduct }) => {
                                     border: 'none',
                                     borderRadius: '4px'
                                 }}
-                                // onClick={handleAddOrderProduct}
+                                onClick={handleAddOrderProduct}
                                 label={'Chọn mua'}
                                 styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
                             ></ButtonComponent>
