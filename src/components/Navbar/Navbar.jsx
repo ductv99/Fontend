@@ -1,9 +1,21 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 // import { Checkbox, Rate } from 'antd'
 import { WrapperLabelText, WrapperContent, WrapperTextValue } from './styled'
+import *  as ProductService from "../../service/ProductService"
+import TypeProduct from "../../components/TypeProduct/TypeProduct";
 
 const Navbar = () => {
-    const category = ['ct1', 'ct2', 'ct3']
+    const [category, setCategory] = useState([])
+    const fetchProductAllType = async () => {
+        const res = await ProductService.getAllProductType()
+        if (res?.status === "OK") {
+            setCategory(res?.data)
+        }
+    }
+    useEffect(() => {
+        fetchProductAllType()
+    }, [])
+
     return (
         <div>
             <WrapperLabelText>
@@ -13,9 +25,10 @@ const Navbar = () => {
                 {category.map((item) => {
                     return (
                         <WrapperTextValue>
-                            {item}
+                        <TypeProduct name={item} key={item} />
                         </WrapperTextValue>
                     )
+
                 })}
             </WrapperContent>
         </div>

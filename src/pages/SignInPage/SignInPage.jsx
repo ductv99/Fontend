@@ -50,7 +50,7 @@ const SignInPage = () => {
             localStorage.setItem('access_token', JSON.stringify(data?.access_token))
             if (data?.access_token) {
                 const decode = jwtDecode(data?.access_token)
-                console.log('dc', decode)
+                // console.log('dc', decode)
                 if (decode?.id) {
                     handleGetDetailsUser(decode?.id, data?.access_token)
                 }

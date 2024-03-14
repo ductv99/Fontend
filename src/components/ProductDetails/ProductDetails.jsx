@@ -20,13 +20,14 @@ import { useQuery } from "@tanstack/react-query";
 import Loading from "../../components/Loading/Loading";
 import { useLocation, useNavigate } from "react-router-dom";
 import { addOrderProduct } from "../../redux/slides/orderSlice";
+import { convertPrice } from "../../untils";
 
 
 
 const ProductDetails = ({ idProduct }) => {
     const navigate = useNavigate()
     const location = useLocation()
-    const [numberProduct, setNumberProduct] = useState(0)
+    const [numberProduct, setNumberProduct] = useState(1)
     const user = useSelector((state) => state?.user)
     const dispatch = useDispatch()
     const onChange = (value) => {
@@ -41,7 +42,7 @@ const ProductDetails = ({ idProduct }) => {
         if (type === 'increase') {
             setNumberProduct(numberProduct + 1)
         }
-        else if (type === 'decrease' && numberProduct > 0) {
+        else if (type === 'decrease' && numberProduct > 1) {
             setNumberProduct(numberProduct - 1)
         }
     }
@@ -77,21 +78,42 @@ const ProductDetails = ({ idProduct }) => {
                 orderItem: {
                     name: productDetail?.name,
                     amount: numberProduct,
-                    image: productDetail?.image,
+                    image: productDetail?.image[0],
                     price: productDetail?.price,
                     product: productDetail?._id,
                     discount: productDetail?.discount,
-                    countInstock: productDetail?.countInStock
+                    // countInstock: productDetail?.countInStock
+                    color: selectedColor,
+                    size: selectedSize
                 }
             }))
         }
     }
-    // console.log("detail", productDetail)
+
+
+    const [selectedImage, setSelectedImage] = useState(productDetail?.image[0]);
+
+    const handleImageClick = (image) => {
+        setSelectedImage(image);
+    };
+
+    const [selectedColor, setSelectedColor] = useState(productDetail?.countInStock[0].color);
+    const [selectedSizes, setSelectedSizes] = useState([]);
+    const [selectedSize, setSelectedSize] = useState(null);
+    const handleColorClick = (color, sizes) => {
+        setSelectedColor(color);
+        setSelectedSizes(sizes)
+    };
+
+    const handleSizeClick = (size) => {
+        setSelectedSize(size);
+    };
+
     return (
         <Loading isPending={isLoading}>
-            <Row style={{ padding: '16px', background: '#fff', borderRadius: '4px', height: 'fit-content' }}>
-                <Col span={10} style={{ borderRight: '1px solid #e5e5e5', paddingRight: '8px' }}>
-                    <Image src={productDetail?.image} alt='product' preview={false} style={{ width: "400px", height: "500px" }} />
+            <Row style={{ padding: '16px', background: '#fff', borderRadius: '4px', height: 'fit-content', width: '1280px', margin: 'auto' }}>
+                {/* <Col span={10} style={{ borderRight: '1px solid #e5e5e5', paddingRight: '8px' }}>
+                    <Image src={productDetail?.image[0]} alt='product' preview={false} style={{ width: "400px", height: "500px" }} />
                     <Row style={{ paddingTop: '10px', justifyContent: 'space-between' }}>
                         <WrapperStyleColImage>
                             <WrapperStyleImageSmall src={imageTest} alt='product' preview="false" />
@@ -112,31 +134,109 @@ const ProductDetails = ({ idProduct }) => {
                             <WrapperStyleImageSmall src={imageTest} alt='product' preview="false" />
                         </WrapperStyleColImage>
                     </Row>
+                </Col> */}
+                <Col span={10} style={{ borderRight: '1px solid #e5e5e5', paddingRight: '8px' }}>
+                    {selectedImage ? (
+                        <img src={selectedImage} alt='product' style={{ width: "400px", height: "500px", margin: 'auto' }} />
+                    ) : (
+                        <img src={productDetail?.image[0]} alt='product' style={{ width: "400px", height: "500px", margin: 'auto' }} />
+                    )}
+                    <Row style={{ paddingTop: '10px', justifyContent: 'space-between' }}>
+                        {productDetail?.image.map((image, index) => (
+                            <div key={index} onClick={() => handleImageClick(image)}>
+                                <img style={{ width: '72px', height: '72px' }} src={image} alt='product' />
+                            </div>
+                        ))}
+                    </Row>
                 </Col>
                 <Col span={14} style={{ paddingLeft: '10px' }}>
                     <WrapperStyleNameProduct>{productDetail?.name}</WrapperStyleNameProduct>
                     <div>
-                        {renderStars(productDetail?.rating)}
-                        <WrapperStyleTextSell>| Da ban 1000+</WrapperStyleTextSell>
+                        {renderStars(productDetail?.rating)} {' '}
+                        <WrapperStyleTextSell>| Đã bán {productDetail?.selled ? productDetail?.selled : 0}+</WrapperStyleTextSell>
                     </div>
                     <WrapperPriceProduct>
                         <WrapperPriceTextProduct>
-                            {productDetail?.price} vnd
+                            {convertPrice(productDetail?.price)}
                         </WrapperPriceTextProduct>
                     </WrapperPriceProduct>
                     <WrapperAddressProduct>
-                        <span>Giao đến </span>
-                        <span className='address'>{user?.address}</span> -
-                        <span className='change-address'>Đổi địa chỉ</span>
+                        <span style={{ fontWeight: 'bold' }}>Giao đến: </span>
+                        <span >{user?.address}</span>
+                        {/* <span className='change-address'>Đổi địa chỉ</span> */}
                     </WrapperAddressProduct>
+                    <div style={{ paddingTop: '20px', borderTop: '1px solid #e5e5e5' }}>
+                        <span style={{ fontWeight: 'bold', }}>
+                            Mô tả: {' '}
+                        </span>
+                        {productDetail?.description}
+                    </div>
+
+                    <div style={{ margin: '10px 0 10px', padding: '10px 0', borderTop: '1px solid #e5e5e5' }}>
+                        <span style={{ fontWeight: 'bold' }}>Màu sắc:</span>
+                        <div style={{ display: 'flex', flexDirection: 'row', gap: 10, paddingTop: '5px' }}>
+                            {productDetail?.countInStock.map((item) => {
+                                return (
+                                    item?.sizes?.length != 0 &&
+                                    < div
+                                        key={item.id}
+                                        style={{
+                                            width: '28px',
+                                            height: '28px',
+                                            border: `1px solid ${selectedColor === item.color ? 'red' : 'rgb(11, 119,226)'}`,
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            cursor: 'pointer'
+                                        }}
+                                        onClick={() => { handleColorClick(item.color, item.sizes) }}
+                                    >
+                                        <div
+                                            style={{ width: '25px', height: '25px', backgroundColor: item.color }}>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+
+                    <div style={{ margin: '5px 0 5px', padding: '5px 0', borderTop: '1px solid #e5e5e5' }}>
+                        <span style={{ fontWeight: 'bold' }}>Size:</span>
+                        <div style={{ display: 'flex', flexDirection: 'row', gap: 10, paddingTop: '5px' }}>
+                            {selectedSizes?.map((item) => {
+                                return (
+                                    <div
+                                        key={item.id}
+                                        style={{
+                                            width: '28px',
+                                            height: '28px',
+                                            border: `1px solid ${selectedSize === item.size ? 'red' : 'rgb(11, 119, 226)'}`,
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            cursor: 'pointer'
+                                        }}
+                                        onClick={() => {
+                                            handleSizeClick(item.size);
+                                        }}
+                                    >
+                                        <div style={{ width: '25px', height: '25px', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                            {item.size}
+                                        </div>
+                                    </div>
+
+                                )
+                            })}
+                        </div>
+                    </div>
                     <div style={{ margin: '10px 0 20px', padding: '10px 0', borderTop: '1px solid #e5e5e5', borderBottom: '1px solid #e5e5e5' }}>
-                        <div style={{ marginBottom: '6px' }}>Số lượng: </div>
+                        <div style={{ marginBottom: '6px', fontWeight: 'bold' }}>Số lượng: </div>
                         <WrapperQualityProduct>
                             <div>
                                 <button style={{ border: 'none', background: 'transparent', cursor: 'pointer' }} onClick={() => handleChangeCount('decrease')}>
                                     <MinusOutlined style={{ color: '#000', fontSize: '20px' }} />
                                 </button>
-                                <WrapperInputNumber onChange={onChange} size="small" defaultValue={0} value={numberProduct} />
+                                <WrapperInputNumber onChange={onChange} size="small" defaultValue={1} value={numberProduct} />
                                 <button style={{ border: 'none', background: 'transparent', cursor: 'pointer' }} onClick={() => handleChangeCount('increase')} >
                                     <PlusOutlined style={{ color: '#000', fontSize: '20px' }} />
                                 </button>
@@ -160,7 +260,7 @@ const ProductDetails = ({ idProduct }) => {
                             ></ButtonComponent>
                             {/* {errorLimitOrder && <div style={{ color: 'red' }}>San pham het hang</div>} */}
                         </div>
-                        <ButtonComponent
+                        {/* <ButtonComponent
                             size={40}
                             styleButton={{
                                 background: '#fff',
@@ -171,10 +271,12 @@ const ProductDetails = ({ idProduct }) => {
                             }}
                             label={'Mua trả sau'}
                             styleTextButton={{ color: 'rgb(13, 92, 182)', fontSize: '15px' }}
-                        ></ButtonComponent>
+                        ></ButtonComponent> */}
                     </div>
+
                 </Col>
             </Row>
+
         </Loading>
     );
 }

@@ -14,6 +14,7 @@ export const WrapperContentProfile = styled.div`
     margin: 0 auto;
     padding: 30px;
     border-radius: 10px;
+     background-color: #fff;
     gap: 30px;
 `
 

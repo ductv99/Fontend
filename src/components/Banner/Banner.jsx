@@ -3,7 +3,7 @@ import React from "react";
 const Banner = () => {
     const bannerStyle = {
         width: "1080px",
-        padding: "2rem",
+        padding: "1rem",
         paddingTop: "2rem",
         backgroundColor: "rgb(26, 148, 255)",
         color: "#fff",
@@ -33,16 +33,18 @@ const Banner = () => {
     };
 
     return (
-        <div style={bannerStyle}>
-            <div>
+        <div className="pt-10">
+            <div style={bannerStyle}>
                 <div>
-                    <h2 style={headingStyle}>
-                        Giảm sâu đến
-                        <br />
-                        <span style={discountStyle}>50%</span> cho tất cả các sản phẩm
-                    </h2>
-                    <div style={promoTextStyle}>
-                        <span>Miễn phí vận chuyển!</span>
+                    <div>
+                        <h2 style={headingStyle}>
+                            <span style={discountStyle}>FREE SHIPPING</span>
+                            <br></br>
+                            cho đơn hàng <span style={discountStyle}>{'>'} 500K</span>
+                        </h2>
+                        <div style={promoTextStyle}>
+                            <span style={{ fontFamily: 'Redressed, sans-serif' }}></span>
+                        </div>
                     </div>
                 </div>
             </div>

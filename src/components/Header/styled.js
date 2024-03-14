@@ -25,7 +25,7 @@ export const WrapperTextHeader = styled.span`
 font-size: 18px;
 color: #fff;
 font-weight: bold;
-text-align:left
+text-align:left;
 `
 // font-family: 'Redressed', sans-serif;
 export const WrraperAccountHeader = styled.div`
