@@ -11,11 +11,13 @@ import InputComponent from '../../components/InputComponent/InputComponent';
 import { useMutationHook } from "../../hook/userMutationHook";
 import * as  UserService from '../../service/UserService'
 import * as OrderService from '../../service/OrderService'
+import * as PaymentService from '../../service/PaymentService'
 import Loading from '../../components/Loading/Loading';
 import * as message from '../../components/Message/Message'
 import { updateUser } from "../../redux/slides/userSile";
 import { useNavigate } from 'react-router-dom';
 import { removeAllOrderProduct } from '../../redux/slides/orderSlice';
+import { PayPalButton } from 'react-paypal-button-v2';
 
 
 const PaymentPage = () => {
@@ -36,7 +38,6 @@ const PaymentPage = () => {
     const [form] = Form.useForm();
 
     const dispatch = useDispatch()
-
 
 
 
@@ -94,7 +95,7 @@ const PaymentPage = () => {
                 token: user?.access_token, ...stateUserDetails, orderItems: order?.orderItemsSelected,
                 fullName: user?.name, address: user?.address, phone: user?.phone,
                 paymentMethod: payment, itemsPrice: priceMemo, shippingPrice: diliveryPriceMemo,
-                totalPrice: totalPriceMemo, user: user?.id
+                totalPrice: totalPriceMemo, user: user?.id, email: user?.email
             })
         }
     }
@@ -184,6 +185,35 @@ const PaymentPage = () => {
         setPayment(e.target.value)
     }
 
+    const addPaypalScript = async () => {
+        const { data } = await PaymentService.getConfig()
+        const script = document.createElement('script')
+        script.type = 'text/javascript'
+        script.src = `https://www.paypal.com/sdk/js?client-id=${data}`
+        script.async = true
+        script.onload = () => {
+            setSdkReady(true)
+        }
+        document.body.appendChild(script)
+    }
+
+
+    useEffect(() => {
+        if (!window.paypal) {
+            addPaypalScript()
+        } else {
+            setSdkReady(true)
+        }
+    }, [])
+
+    const onSuccessPaypal = (details, data) => {
+        mutationAddOrder.mutate({
+            token: user?.access_token, ...stateUserDetails, orderItems: order?.orderItemsSelected,
+            fullName: user?.name, address: user?.address, phone: user?.phone,
+            paymentMethod: payment, itemsPrice: priceMemo, shippingPrice: diliveryPriceMemo,
+            totalPrice: totalPriceMemo, user: user?.id, isPaid: true, paidAt: details.update_time
+        })
+    }
     return (
         <div style={{ background: '#f5f5fa', with: '100%', height: '100vh' }}>
             <Loading isPending={isLoadingAddOrder}>
@@ -243,14 +273,15 @@ const PaymentPage = () => {
                             </div>
                             {payment === 'paypal' && sdkReady ? (
                                 <div style={{ width: '320px' }}>
-                                    {/* <PayPalButton
-                                        amount={Math.round(totalPriceMemo / 30000)}
+                                    <p>Quy đổi (USD): {totalPriceMemo / 30000}</p>
+                                    <PayPalButton
+                                        amount={totalPriceMemo / 30000}
                                         // shippingPreference="NO_SHIPPING" // default is "GET_FROM_FILE"
                                         onSuccess={onSuccessPaypal}
                                         onError={() => {
-                                            alert('Erroe')
+                                            alert("Error ")
                                         }}
-                                    /> */}
+                                    />
                                 </div>
                             ) : (
                                 <ButtonComponent

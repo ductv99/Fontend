@@ -21,7 +21,7 @@ import Loading from "../../components/Loading/Loading";
 import { useLocation, useNavigate } from "react-router-dom";
 import { addOrderProduct } from "../../redux/slides/orderSlice";
 import { convertPrice } from "../../untils";
-
+import * as message from '../../components/Message/Message'
 
 
 const ProductDetails = ({ idProduct }) => {
@@ -87,6 +87,7 @@ const ProductDetails = ({ idProduct }) => {
                     size: selectedSize
                 }
             }))
+            message.success('Đã thêm vào giỏ hàng')
         }
     }
 
@@ -172,7 +173,7 @@ const ProductDetails = ({ idProduct }) => {
                         {productDetail?.description}
                     </div>
 
-                    <div style={{ margin: '10px 0 10px', padding: '10px 0', borderTop: '1px solid #e5e5e5' }}>
+                    <div style={{  padding: '10px 0', borderTop: '1px solid #e5e5e5' }}>
                         <span style={{ fontWeight: 'bold' }}>Màu sắc:</span>
                         <div style={{ display: 'flex', flexDirection: 'row', gap: 10, paddingTop: '5px' }}>
                             {productDetail?.countInStock.map((item) => {
@@ -181,8 +182,8 @@ const ProductDetails = ({ idProduct }) => {
                                     < div
                                         key={item.id}
                                         style={{
-                                            width: '28px',
-                                            height: '28px',
+                                            width: '30px',
+                                            height: '30px',
                                             border: `1px solid ${selectedColor === item.color ? 'red' : 'rgb(11, 119,226)'}`,
                                             display: 'flex',
                                             justifyContent: 'center',
@@ -192,7 +193,9 @@ const ProductDetails = ({ idProduct }) => {
                                         onClick={() => { handleColorClick(item.color, item.sizes) }}
                                     >
                                         <div
-                                            style={{ width: '25px', height: '25px', backgroundColor: item.color }}>
+                                            style={{
+                                                width: '25px', height: '25px', backgroundColor: item.color
+                                            }}>
                                         </div>
                                     </div>
                                 )

@@ -6,6 +6,8 @@ export const WrapperTypeProduct = styled.div`
     align-items: center;
     gap: 24px;
     justify-content: flex-start;
+    font-weight: bold;
+    font
     height: 44px;
 `
 

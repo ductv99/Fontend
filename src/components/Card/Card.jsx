@@ -31,7 +31,7 @@ const Card = (props) => {
             <WrraperPriceText>
                 <span style={{ marginRight: '8px' }}>{convertPrice(price)} </span>
                 <WrraperDisscountText>
-                    - {discount || 0}%
+                    {/* - {discount || 0}% */}
                 </WrraperDisscountText>
             </WrraperPriceText>
         </WrraperCard>

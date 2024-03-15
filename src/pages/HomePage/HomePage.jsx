@@ -44,7 +44,7 @@ const HomePage = () => {
     return (
         <Loading isPending={isLoading}>
             <div style={{ width: '1270px', margin: '0 auto' }}>
-                <WrapperTypeProduct>
+                <WrapperTypeProduct >
                     {category.map((item) => {
                         return (
                             <TypeProduct name={item} key={item} />
