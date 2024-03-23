@@ -33,7 +33,7 @@ export const orderSilde = createSlice({
             } else {
                 state.orderItems.push(orderItem)
             }
-            // console.log("l", orderItem)
+
         },
         increaseAmount: (state, action) => {
             const { sizeId } = action.payload
@@ -69,7 +69,6 @@ export const orderSilde = createSlice({
         },
         selectedOrder: (state, action) => {
             const { listChecked } = action.payload
-            console.log("list", listChecked)
             const orderSelected = []
             state.orderItems.forEach((order) => {
                 if (listChecked.includes(order.sizeId)) {

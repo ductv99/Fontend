@@ -127,6 +127,7 @@ const AdminUser = () => {
     };
 
     const DeleteUser = () => {
+        console.log(rowSelected)
         mutationDelete.mutate({ id: rowSelected, token: user?.access_token },
             {
                 onSettled: () => {
@@ -202,7 +203,7 @@ const AdminUser = () => {
     }
     const onUpdateRoleUser = () => {
         const isAdmin = roleSelected;
-        console.log('admin', isAdmin);
+        // console.log('admin', isAdmin);
 
         mutationUpdate.mutate({
             id: rowSelected,
@@ -267,6 +268,7 @@ const AdminUser = () => {
                     isLoading={isLoading}
                     handleDeleteMany={handleDeleteManyUser}
                     onRow={(record, rowIndex) => {
+                        console.log('x', record)
                         return {
                             onClick: event => {
                                 setRowSelected(record._id)

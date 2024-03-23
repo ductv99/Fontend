@@ -1,11 +1,8 @@
 import React, { useState } from "react";
-import { Col, Image, Row } from "antd";
-import imageTest from '../../assets/images/imageTest.jpeg'
+import { Col, Row } from "antd";
 import { StarFilled, PlusOutlined, MinusOutlined } from "@ant-design/icons"
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent'
 import {
-    WrapperStyleImageSmall,
-    WrapperStyleColImage,
     WrapperStyleNameProduct,
     WrapperStyleTextSell,
     WrapperPriceProduct,
@@ -22,6 +19,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { addOrderProduct } from "../../redux/slides/orderSlice";
 import { convertPrice } from "../../untils";
 import * as message from '../../components/Message/Message'
+
 
 
 const ProductDetails = ({ idProduct }) => {
@@ -60,6 +58,9 @@ const ProductDetails = ({ idProduct }) => {
         }
         return stars;
     };
+
+
+
 
     const handleAddOrderProduct = () => {
         let checkRq = true
@@ -102,6 +103,7 @@ const ProductDetails = ({ idProduct }) => {
             message.success('Đã thêm vào giỏ hàng')
         }
     }
+
 
     const [selectedImage, setSelectedImage] = useState(productDetail?.image[0]);
 
@@ -191,7 +193,7 @@ const ProductDetails = ({ idProduct }) => {
                                 return (
                                     item?.sizes?.length != 0 &&
                                     < div
-                                        key={item.id}
+                                        key={item?._id}
                                         style={{
                                             width: '31px',
                                             height: '31px',

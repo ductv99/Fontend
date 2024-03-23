@@ -17,19 +17,19 @@ import { imageDb } from "../../../../FireBase/Config"
 import { v4 } from 'uuid'
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 const AdminProduct = () => {
+    const [rowSelected, setRowSelected] = useState('')
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPendingUpdate, setIsPendingUpdate] = useState(false)
     const user = useSelector((state) => state?.user)
-    const [imgFire, setImgFire] = useState('')
     const [isModalOpenDelele, setIsModalOpenDelele] = useState(false)
     // const [searchText, setSearchText] = useState('');
     // const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null)
-    const [rowSelected, setRowSelected] = useState('')
     const [isOpenDrawer, setIsOpenDrawer] = useState(false)
     const initial = () => ({
         name: '',
         price: '',
+        importPrice: '',
         description: '',
         rating: '',
         image: [],
@@ -39,7 +39,6 @@ const AdminProduct = () => {
         newType: ''
     })
     const [stateProduct, setStateProduct] = useState(initial())
-
     const [stateProductDetail, setStateProductDetail] = useState(initial())
 
     const mutation = useMutationHook(
@@ -86,6 +85,7 @@ const AdminProduct = () => {
         })
     }
 
+
     const handleOnchangeDetail = (e) => {
         setStateProductDetail({
             ...stateProductDetail,
@@ -98,16 +98,7 @@ const AdminProduct = () => {
 
     const handleCancel = () => {
         setIsModalOpen(false);
-        setStateProduct({
-            name: '',
-            price: '',
-            description: '',
-            rating: '',
-            image: '',
-            discount: '',
-            countInStock: '',
-            type: ''
-        })
+        setStateProduct(initial())
         form.resetFields()
     };
 
@@ -172,6 +163,7 @@ const AdminProduct = () => {
 
         const params = {
             name: stateProduct.name,
+            importPrice: stateProduct.importPrice,
             price: stateProduct.price,
             description: stateProduct.description,
             rating: stateProduct.rating,
@@ -203,7 +195,7 @@ const AdminProduct = () => {
         if (isSuccessDeleteMany && dataDeleteMany?.status === "success") {
             handleCancel()
             message.success()
-            // queryProduct.refetch()
+            queryProduct.refetch()
         } else if (isErrorDeleteMany) {
             message.error()
         }
@@ -330,8 +322,10 @@ const AdminProduct = () => {
 
     const dataTable = products?.data?.length && products?.data?.map((product) => {
         return {
+            ...product,
             key: product._id,
             name: product.name,
+            importPrice: convertPrice(product.importPrice),
             price: convertPrice(product.price),
             type: product.type,
             rating: product.rating,
@@ -349,6 +343,7 @@ const AdminProduct = () => {
         if (res?.data) {
             setStateProductDetail({
                 name: res.data.name,
+                importPrice: res.data.importPrice,
                 price: res.data.price,
                 description: res.data.description,
                 rating: res.data.rating,
@@ -385,6 +380,7 @@ const AdminProduct = () => {
             setIsPendingUpdate(true)
             fetchGetDetailProduct(rowSelected)
         }
+
     }, [rowSelected, isOpenDrawer])
 
     useEffect(() => {
@@ -404,10 +400,10 @@ const AdminProduct = () => {
 
     // console.log("data", stateProductDetail)
     const handleDetailProduct = () => {
-        // if (rowSelected) {
-        //     setIsPendingUpdate(true)
-        //     fetchGetDetailProduct(rowSelected)
-        // }
+        if (rowSelected) {
+            setIsPendingUpdate(true)
+            fetchGetDetailProduct(rowSelected)
+        }
         setIsOpenDrawer(true)
 
     }
@@ -417,6 +413,7 @@ const AdminProduct = () => {
         const {
             name,
             price,
+            importPrice,
             description,
             rating,
             image,
@@ -429,6 +426,7 @@ const AdminProduct = () => {
             id: rowSelected,
             name,
             price,
+            importPrice,
             description,
             rating,
             image,
@@ -464,6 +462,7 @@ const AdminProduct = () => {
     }
 
     const DeleteProduct = () => {
+        console.log(rowSelected)
         mutationDelete.mutate({ id: rowSelected, token: user?.access_token },
             {
                 onSettled: () => {
@@ -472,6 +471,7 @@ const AdminProduct = () => {
             }
         )
     }
+
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
         // setSearchText(selectedKeys[0]);
@@ -484,8 +484,8 @@ const AdminProduct = () => {
     const renderAction = () => {
         return (
             <div>
-                <DeleteOutlined style={{ color: 'red', fontSize: '30px', cursor: 'pointer' }} onClick={() => { setIsModalOpenDelele(true) }} />
                 <EditOutlined style={{ color: 'orange', fontSize: '30px', cursor: 'pointer' }} onClick={handleDetailProduct} />
+                <DeleteOutlined style={{ color: 'red', fontSize: '30px', cursor: 'pointer' }} onClick={() => { setIsModalOpenDelele(true) }} />
             </div>
         )
     }
@@ -559,11 +559,11 @@ const AdminProduct = () => {
         //     dataIndex: 'size',
         //     // sorter: (a, b) => a.price - b.price
         // },
-        // {
-        //     title: 'Số lượng',
-        //     dataIndex: 'quantity',
-        //     // sorter: (a, b) => a.price - b.price
-        // },
+        {
+            title: 'Giá nhập',
+            dataIndex: 'importPrice',
+            sorter: (a, b) => a.importPrice - b.importPrice
+        },
         {
             title: 'Giá',
             dataIndex: 'price',
@@ -664,6 +664,7 @@ const AdminProduct = () => {
                     isLoading={isLoading}
                     handleDeleteMany={handleDeleteManyProduct}
                     onRow={(record, rowIndex) => {
+                        console.log('o', record._id)
                         return {
                             onClick: event => {
                                 setRowSelected(record._id)
@@ -944,7 +945,19 @@ const AdminProduct = () => {
 
                         </Form.Item>
                         <Form.Item
-                            label="Giá"
+                            label="Giá nhập"
+                            name="importPrice"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Vui lòng nhập giá tiền',
+                                },
+                            ]}
+                        >
+                            <InputComponent value={setStateProduct.importPrice} onChange={handleOnchange} name="importPrice" />
+                        </Form.Item>
+                        <Form.Item
+                            label="Giá bán"
                             name="price"
                             rules={[
                                 {
