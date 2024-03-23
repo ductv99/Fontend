@@ -6,7 +6,7 @@ import { isJsonString } from './untils';
 import { jwtDecode } from "jwt-decode";
 import * as UserService from './service/UserService'
 import { useDispatch, useSelector } from 'react-redux'
-import { updateUser } from "./redux/slides/userSile";
+import { resetUser, updateUser } from "./redux/slides/userSile";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage"
 export default function App() {
   const dispatch = useDispatch();
@@ -28,22 +28,34 @@ export default function App() {
 
   }
 
+
   UserService.axiosJWT.interceptors.request.use(async function (config) {
     const currenTime = new Date()
     const { decode } = handleDecoded()
+
+    let storageRefreshToken = localStorage.getItem('refresh_token')
+    const refreshToken = JSON.parse(storageRefreshToken)
+    const decodedRefreshToken = jwtDecode(refreshToken)
     if (decode?.exp < currenTime.getTime() / 1000) {
-      const data = await UserService.refreshToken()
-      config.headers['token'] = `Bearer ${data?.access_token}`
+      if (decodedRefreshToken?.exp > currenTime.getTime() / 1000) {
+        const data = await UserService.refreshToken(refreshToken)
+        config.headers['token'] = `Bearer ${data?.access_token}`
+      } else {
+        dispatch(resetUser())
+      }
+
     }
     return config
-  }, function (error) {
+  }, (error) => {
     return Promise.reject(error)
   })
 
 
   const handleGetDetailsUser = async (id, token) => {
+    let storageRefreshToken = localStorage.getItem('refresh_token')
+    const refreshToken = JSON.parse(storageRefreshToken)
     const res = await UserService.getDetailsUser(id, token)
-    dispatch(updateUser({ ...res?.data, access_token: token }))
+    dispatch(updateUser({ ...res?.data, access_token: token, refreshToken: refreshToken }))
   }
 
   useEffect(() => {

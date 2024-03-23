@@ -48,6 +48,8 @@ const SignInPage = () => {
                 navigate('/')
             }
             localStorage.setItem('access_token', JSON.stringify(data?.access_token))
+            localStorage.setItem('refresh_token', JSON.stringify(data?.refresh_token))
+
             if (data?.access_token) {
                 const decode = jwtDecode(data?.access_token)
                 // console.log('dc', decode)
@@ -59,9 +61,13 @@ const SignInPage = () => {
     }, [isSuccess])
 
     const handleGetDetailsUser = async (id, token) => {
+        const storage = localStorage.getItem('refresh_token')
+        const refresh_token = JSON.parse(storage)
+
         const res = await UserService.getDetailsUser(id, token)
-        console.log('res', res)
-        dispatch(updateUser({ ...res?.data, access_token: token }))
+        // console.log('res', res)
+
+        dispatch(updateUser({ ...res?.data, access_token: token, refresh_token }))
     }
     return (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0, 0, 0, 0.53)', height: '100vh' }}>

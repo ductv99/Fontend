@@ -18,9 +18,19 @@ export const getDetailsUser = async (id, access_token) => {
     })
     return res.data
 }
-export const refreshToken = async () => {
-    const res = await axios.post(`${process.env.REACT_APP_API_KEY}/user/refresh-token`, {
-        withCrendentials: true
+// export const refreshToken = async () => {
+//     const res = await axios.post(`${process.env.REACT_APP_API_KEY}/user/refresh-token`, {
+//         withCrendentials: true
+//     })
+//     return res.data
+// }
+
+export const refreshToken = async (refreshToken) => {
+    // console.log('refreshToken', refreshToken)
+    const res = await axios.post(`${process.env.REACT_APP_API_KEY}/user/refresh-token`, {}, {
+        headers: {
+            token: `Bearer ${refreshToken}`,
+        }
     })
     return res.data
 }

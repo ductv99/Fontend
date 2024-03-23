@@ -222,7 +222,7 @@ const ProductDetails = ({ idProduct }) => {
                             {selectedSizes?.map((item) => {
                                 return (
                                     <div
-                                        key={item.id}
+                                        key={item?._id}
                                         style={{
                                             width: '28px',
                                             height: '28px',
@@ -245,6 +245,7 @@ const ProductDetails = ({ idProduct }) => {
                             })}
                         </div>
                     </div>
+                    
                     <div style={{ margin: '10px 0 20px', padding: '10px 0', borderTop: '1px solid #e5e5e5', borderBottom: '1px solid #e5e5e5' }}>
                         <div style={{ marginBottom: '6px', fontWeight: 'bold' }}>Số lượng: </div>
                         <WrapperQualityProduct>
