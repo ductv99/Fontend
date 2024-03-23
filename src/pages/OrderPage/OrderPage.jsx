@@ -7,7 +7,7 @@ import { CustomCheckbox, WrapperCountOrder, WrapperInfo, WrapperItemOrder, Wrapp
 import { decreaseAmount, increaseAmount, removeAllOrderProduct, removeOrderProduct, selectedOrder } from "../../redux/slides/orderSlice";
 import { convertPrice } from "../../untils";
 import ModalComponent from "../../components/ModalComponent/ModalComponent"
-import { Form } from "antd";
+import { Form } from 'antd';
 import InputComponent from "../../components/InputComponent/InputComponent";
 import { useMutationHook } from "../../hook/userMutationHook";
 import * as UserService from '../../service/UserService'
@@ -21,7 +21,8 @@ const OrderPage = () => {
     const order = useSelector((state) => state.order)
     const user = useSelector((state) => state.user)
     const [listChecked, setListChecked] = useState([])
-    const [form] = Form.useForm()
+    // const [form] = Form.useForm()
+    const [form] = Form.useForm();
     const [isOpenModalUpdateInfo, setIsOpenModalUpdateInfo] = useState(false)
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -41,15 +42,15 @@ const OrderPage = () => {
         }
     }
 
-    const handleChangeCount = (type, idProduct) => {
+    const handleChangeCount = (type, sizeId) => {
         if (type === 'increase') {
-            dispatch(increaseAmount({ idProduct }))
+            dispatch(increaseAmount({ sizeId }))
         } else {
-            dispatch(decreaseAmount({ idProduct }))
+            dispatch(decreaseAmount({ sizeId }))
         }
     }
-    const handleDeleteOrder = (idProduct) => {
-        dispatch(removeOrderProduct({ idProduct }))
+    const handleDeleteOrder = (sizeId) => {
+        dispatch(removeOrderProduct({ sizeId }))
     }
     const handleRemoveAllOrder = () => {
         if (listChecked?.length > 0) {
@@ -78,7 +79,7 @@ const OrderPage = () => {
     }, [order])
 
     const diliveryPriceMemo = useMemo(() => {
-        console.log(priceMemo)
+        // console.log(priceMemo)
         if (priceMemo <= 500000 && priceMemo > 0) {
             return 30000
         } else if (priceMemo > 500000 || priceMemo === 0) {
@@ -93,7 +94,7 @@ const OrderPage = () => {
         if (e.target.checked) {
             const newListChecked = []
             order?.orderItems?.forEach((item) => {
-                newListChecked.push(item?.product)
+                newListChecked.push(item?.sizeId)
             })
             setListChecked(newListChecked)
         } else {
@@ -114,7 +115,7 @@ const OrderPage = () => {
                 city: user?.city,
                 name: user?.name,
                 address: user?.address,
-                phone: user?.phone
+                phone: `0${user?.phone}`
             })
         }
     }, [isOpenModalUpdateInfo])
@@ -221,8 +222,8 @@ const OrderPage = () => {
                                         <div style={{ width: '390px', display: 'flex', alignItems: 'center', gap: 4 }}>
                                             <CustomCheckbox
                                                 onChange={onChange}
-                                                value={order?.product}
-                                                checked={listChecked.includes(order?.product)}
+                                                value={order?.sizeId}
+                                                checked={listChecked.includes(order?.sizeId)}
                                             ></CustomCheckbox>
                                             <img
                                                 src={order?.image}
@@ -254,16 +255,16 @@ const OrderPage = () => {
                                             </span>
                                             <WrapperCountOrder>
                                                 <button style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
-                                                    onClick={() => handleChangeCount('decrease', order?.product)}
+                                                    onClick={() => handleChangeCount('decrease', order?.sizeId)}
                                                 >
                                                     <MinusOutlined style={{ color: '#000', fontSize: '10px' }} />
                                                 </button>
                                                 <WrapperInputNumber
                                                     defaultValue={order?.amount}
                                                     value={order?.amount}
-                                                    size="small" min={1} max={order?.countInstock} />
+                                                    size="small" min={1} />
                                                 <button style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
-                                                    onClick={() => handleChangeCount('increase', order?.product)}
+                                                    onClick={() => handleChangeCount('increase', order?.sizeId)}
                                                 >
                                                     <PlusOutlined style={{ color: '#000', fontSize: '10px' }} />
                                                 </button>
@@ -272,7 +273,7 @@ const OrderPage = () => {
                                                 {convertPrice(order?.price * order?.amount)}
                                             </span>
                                             <DeleteOutlined style={{ cursor: 'pointer' }}
-                                                onClick={() => handleDeleteOrder(order?.product)}
+                                                onClick={() => handleDeleteOrder(order?.sizeId)}
                                             />
                                         </div>
                                     </WrapperItemOrder>
@@ -342,12 +343,13 @@ const OrderPage = () => {
             <ModalComponent title="Cập nhật thông tin giao hàng" open={isOpenModalUpdateInfo} onCancel={handleCancleUpdate} onOk={handleUpdateInforUser}>
                 <Loading isPending={isPending}>
                     <Form
+                        form={form}
                         name="basic"
                         labelCol={{ span: 8 }}
                         wrapperCol={{ span: 16 }}
                         // onFinish={onUpdateUser}
                         autoComplete="on"
-                        form={form}
+
                     >
                         <Form.Item
                             label="Tên người nhận hàng"

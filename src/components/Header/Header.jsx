@@ -63,27 +63,61 @@ const Header = ({ isHisddensearch = false, isHisddenCart = false }) => {
             <WrapperContentPopup onClick={() => handleClickNav('my-order')}>
                 Đơn hàng đã đặt
             </WrapperContentPopup>
-            <WrapperContentPopup onClick={() => handleClickNav()}>
+            <WrapperContentPopup onClick={() => handleClickNav('log-out')}>
                 Đăng xuất
             </WrapperContentPopup>
         </div>
     );
     const handleClickNav = (type) => {
-        if (type === 'profile') {
-            navigate("/profile-user")
-        } else if (type === 'admin') {
-            navigate("/system/admin")
-        } else if (type === 'my-order') {
-            navigate("/my-order", {
-                state: {
-                    id: user?.id,
-                    token: user?.access_token
-                }
-            })
-        } else {
-            handleLogout()
+        switch (type) {
+            case 'admin':
+                navigate("/system/admin")
+                setIsOpenPopup(false)
+                break
+            case 'profile':
+                navigate("/profile-user")
+                setIsOpenPopup(false)
+                break
+            case 'my-order':
+                navigate("/my-order", {
+                    state: {
+                        id: user?.id,
+                        token: user?.access_token
+                    }
+                })
+                setIsOpenPopup(false)
+                break
+            case 'log-out':
+                handleLogout()
+                setIsOpenPopup(false)
+            default:
+                setIsOpenPopup(false)
         }
-        setIsOpenPopup(false)
+
+
+        // if (type === 'profile') {
+        //     navigate("/profile-user")
+        // } else if (type === 'admin') {
+        //     navigate("/system/admin")
+        // } else if (type === 'my-order') {
+        //     navigate("/my-order", {
+        //         state: {
+        //             id: user?.id,
+        //             token: user?.access_token
+        //         }
+        //     })
+        // } else {
+        //     handleLogout()
+        // }
+
+    }
+
+    const openPup = () => {
+        if (isOpenPopup) {
+            setIsOpenPopup(false)
+        } else {
+            setIsOpenPopup(true)
+        }
     }
     return (
         <div style={{ heiht: '100%', width: '100%', display: 'flex', background: 'rgb(26,148,255)', justifyContent: 'center' }}>
@@ -114,7 +148,7 @@ const Header = ({ isHisddensearch = false, isHisddenCart = false }) => {
                             {user?.access_token ? (
                                 <>
                                     <Popover content={content} trigger='click' open={isOpenPopup}>
-                                        <div style={{ cursor: 'pointer' }} onClick={() => setIsOpenPopup(true)}>{userName?.length ? userName : user?.email}</div>
+                                        <div style={{ cursor: 'pointer' }} onClick={() => openPup()}>{userName?.length ? userName : user?.email}</div>
                                     </Popover>
                                 </>
                             ) : (

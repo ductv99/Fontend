@@ -3,7 +3,7 @@ import Navbar from '../../components/Navbar/Navbar'
 import Card from "../../components/Card/Card";
 import { WrapperProducts, WrapperNavbar } from "./styled"
 import { Row, Pagination, Col } from "antd";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import *  as ProductService from "../../service/ProductService"
 import Loading from "../../components/Loading/Loading";
 import { useSelector } from "react-redux";
@@ -12,6 +12,7 @@ import { useDebounce } from "../../hook/useDebounce";
 
 const TypeProductPage = () => {
     const { state } = useLocation()
+    const navigate = useNavigate()
     const searchProduct = useSelector((state) => state?.product?.search)
     const searchDebounce = useDebounce(searchProduct, 500)
     const [products, setProducts] = useState([])
@@ -41,9 +42,11 @@ const TypeProductPage = () => {
     }
     return (
         <Loading isPending={isLoading}>
+
             <div style={{ width: '100%', background: '#efefef', height: 'calc(100vh - 64px)' }}>
                 <div style={{ width: '1270px', margin: '0 auto', height: '100%' }}>
-                    <Row style={{ flexWrap: 'nowrap', paddingTop: '10px', height: 'calc(100% - 20px)' }}>
+                    <h5><span style={{ cursor: "pointer", fontWeight: 'bold' }} onClick={() => { navigate("/") }}>Trang chủ</span> {'>>'} Danh mục sản phẩm </h5>
+                    <Row style={{ flexWrap: 'nowrap', height: 'calc(100% - 20px)' }}>
                         <WrapperNavbar span={4} >
                             <Navbar />
                         </WrapperNavbar>

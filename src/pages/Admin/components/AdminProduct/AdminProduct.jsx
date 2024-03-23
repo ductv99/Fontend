@@ -212,7 +212,6 @@ const AdminProduct = () => {
     let handleOnchangeAvatarCalled = false;
 
     const handleOnchangeAvatar = async ({ fileList }) => {
-
         if (handleOnchangeAvatarCalled) {
             return;
         }

@@ -88,10 +88,10 @@ const MyOrderPage = () => {
         <Loading isPending={isPending}>
             <WrapperContainer>
                 <div style={{ height: '100%', width: '1270px', margin: '0 auto' }}>
-                    <h4>Đơn hàng của tôi</h4>
+                    <h4 style={{ fontWeight: 'bold' }}>Đơn hàng của tôi</h4>
                     <WrapperListOrder>
                         {data?.map((order) => {
-                            console.log(order)
+                            // console.log(order)
                             return (
                                 < WrapperItemOrder key={order?._id
                                 }>

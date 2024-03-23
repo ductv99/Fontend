@@ -50,7 +50,7 @@ const PaymentPage = () => {
             setStateUserDetails({
                 name: user?.name,
                 address: user?.address,
-                phone: user?.phone
+                phone: `0${user?.phone}`
             })
         }
     }, [isOpenModalUpdateInfo])
@@ -100,7 +100,6 @@ const PaymentPage = () => {
         }
     }
 
-
     const mutationUpdate = useMutationHook(
         (data) => {
             const { id,
@@ -129,7 +128,7 @@ const PaymentPage = () => {
         if (isSuccess && dataAdd?.status === 'success') {
             const arrOrder = []
             order?.orderItemsSelected?.forEach(element => {
-                arrOrder.push(element.product)
+                arrOrder.push(element.sizeId)
             });
             dispatch(removeAllOrderProduct({ listChecked: arrOrder }))
             message.success('Đặt hàng thành công')
@@ -156,8 +155,6 @@ const PaymentPage = () => {
         form.resetFields()
         setIsOpenModalUpdateInfo(false)
     }
-
-
 
     const handleUpdateInforUser = () => {
         const { name, address, phone } = stateUserDetails
@@ -211,14 +208,15 @@ const PaymentPage = () => {
             token: user?.access_token, ...stateUserDetails, orderItems: order?.orderItemsSelected,
             fullName: user?.name, address: user?.address, phone: user?.phone,
             paymentMethod: payment, itemsPrice: priceMemo, shippingPrice: diliveryPriceMemo,
-            totalPrice: totalPriceMemo, user: user?.id, isPaid: true, paidAt: details.update_time
+            totalPrice: totalPriceMemo, user: user?.id, isPaid: true, paidAt: details.update_time,
+            email: user?.email
         })
     }
     return (
         <div style={{ background: '#f5f5fa', with: '100%', height: '100vh' }}>
             <Loading isPending={isLoadingAddOrder}>
                 <div style={{ height: '100%', width: '1270px', margin: '0 auto' }}>
-                    <h3>Thanh toán</h3>
+                    <h3 style={{ fontWeight: 'bold' }}>Thanh toán</h3>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                         <WrapperLeft>
                             <WrapperInfo>
@@ -273,9 +271,9 @@ const PaymentPage = () => {
                             </div>
                             {payment === 'paypal' && sdkReady ? (
                                 <div style={{ width: '320px' }}>
-                                    <p>Quy đổi (USD): {totalPriceMemo / 30000}</p>
+                                    <p>Quy đổi (USD): {(totalPriceMemo / 23000).toFixed(2)} $</p>
                                     <PayPalButton
-                                        amount={totalPriceMemo / 30000}
+                                        amount={(totalPriceMemo / 23000).toFixed(2)}
                                         // shippingPreference="NO_SHIPPING" // default is "GET_FROM_FILE"
                                         onSuccess={onSuccessPaypal}
                                         onError={() => {

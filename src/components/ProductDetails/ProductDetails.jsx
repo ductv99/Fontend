@@ -29,6 +29,7 @@ const ProductDetails = ({ idProduct }) => {
     const location = useLocation()
     const [numberProduct, setNumberProduct] = useState(1)
     const user = useSelector((state) => state?.user)
+    const order = useSelector((state) => state.order)
     const dispatch = useDispatch()
     const onChange = (value) => {
         setNumberProduct(Number(value))
@@ -61,19 +62,29 @@ const ProductDetails = ({ idProduct }) => {
     };
 
     const handleAddOrderProduct = () => {
+        let checkRq = true
         if (!user?.id) {
             navigate('/sign-in', { state: location.pathname })
-        } else {
-            // name: { type: String, required: true },
-            // amount: { type: Number, required: true },
-            // image: { type: String, required: true },
-            // price: { type: Number, required: true },
-            // discount: { type: Number },
-            // product: {
-            //     type: mongoose.Schema.Types.ObjectId,
-            //         ref: 'Product',
-            //             required: true,
-            // },
+            checkRq = false
+        } else if (!selectedColor) {
+            checkRq = false
+            message.success('Vui lòng chọn màu sắc')
+        } else if (!selectedSize) {
+            checkRq = false
+            message.success('Vui lòng chọn size')
+        }
+
+        if (checkRq) {
+            let sizeId = null
+            productDetail?.countInStock.forEach(item => {
+                if (item.color === selectedColor) {
+                    item.sizes.forEach(size => {
+                        if (size.size === selectedSize) {
+                            sizeId = size._id
+                        }
+                    })
+                }
+            })
             dispatch(addOrderProduct({
                 orderItem: {
                     name: productDetail?.name,
@@ -82,15 +93,15 @@ const ProductDetails = ({ idProduct }) => {
                     price: productDetail?.price,
                     product: productDetail?._id,
                     discount: productDetail?.discount,
-                    // countInstock: productDetail?.countInStock
+                    sizeId: sizeId,
                     color: selectedColor,
                     size: selectedSize
                 }
-            }))
+            }
+            ))
             message.success('Đã thêm vào giỏ hàng')
         }
     }
-
 
     const [selectedImage, setSelectedImage] = useState(productDetail?.image[0]);
 
@@ -173,7 +184,7 @@ const ProductDetails = ({ idProduct }) => {
                         {productDetail?.description}
                     </div>
 
-                    <div style={{  padding: '10px 0', borderTop: '1px solid #e5e5e5' }}>
+                    <div style={{ padding: '10px 0', borderTop: '1px solid #e5e5e5' }}>
                         <span style={{ fontWeight: 'bold' }}>Màu sắc:</span>
                         <div style={{ display: 'flex', flexDirection: 'row', gap: 10, paddingTop: '5px' }}>
                             {productDetail?.countInStock.map((item) => {
@@ -182,8 +193,8 @@ const ProductDetails = ({ idProduct }) => {
                                     < div
                                         key={item.id}
                                         style={{
-                                            width: '30px',
-                                            height: '30px',
+                                            width: '31px',
+                                            height: '31px',
                                             border: `1px solid ${selectedColor === item.color ? 'red' : 'rgb(11, 119,226)'}`,
                                             display: 'flex',
                                             justifyContent: 'center',

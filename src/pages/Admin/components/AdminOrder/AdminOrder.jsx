@@ -115,51 +115,61 @@ const AdminOrder = () => {
     });
     const columns = [
         {
-            title: 'User name',
+            title: 'Người đặt hàng',
             dataIndex: 'userName',
             sorter: (a, b) => a.userName.length - b.userName.length,
             ...getColumnSearchProps('userName')
         },
         {
-            title: 'Phone',
+            title: 'Số điện thoại',
             dataIndex: 'phone',
             sorter: (a, b) => a.phone.length - b.phone.length,
             ...getColumnSearchProps('phone')
         },
         {
-            title: 'Address',
+            title: 'Địa chỉ người nhận',
             dataIndex: 'address',
             sorter: (a, b) => a.address.length - b.address.length,
             ...getColumnSearchProps('address')
         },
         {
-            title: 'Paided',
+            title: 'Trạng thái thanh toán',
             dataIndex: 'isPaid',
             sorter: (a, b) => a.isPaid.length - b.isPaid.length,
             ...getColumnSearchProps('isPaid')
         },
         {
-            title: 'Shipped',
+            title: 'Trạng thái giao hàng',
             dataIndex: 'isDelivered',
             sorter: (a, b) => a.isDelivered.length - b.isDelivered.length,
             ...getColumnSearchProps('isDelivered')
         },
         {
-            title: 'Payment method',
+            title: 'Hình thức thanh toán',
             dataIndex: 'paymentMethod',
             sorter: (a, b) => a.paymentMethod.length - b.paymentMethod.length,
             ...getColumnSearchProps('paymentMethod')
         },
         {
-            title: 'Total price',
+            title: 'Tổng tiền',
             dataIndex: 'totalPrice',
             sorter: (a, b) => a.totalPrice.length - b.totalPrice.length,
             ...getColumnSearchProps('totalPrice')
         },
     ];
     const dataTable = orders?.data?.length && orders?.data?.map((order) => {
-        console.log('usewr', order)
-        return { ...order, key: order._id, userName: order?.shippingAddress?.fullName, phone: order?.shippingAddress?.phone, address: order?.shippingAddress?.address, paymentMethod: orderContant.payment[order?.paymentMethod], isPaid: order?.isPaid ? 'TRUE' : 'FALSE', isDelivered: order?.isDelivered ? 'TRUE' : 'FALSE', totalPrice: convertPrice(order?.totalPrice) }
+        // console.log('user', order)
+        return {
+            ...order,
+            key: order._id,
+            userName: order?.shippingAddress?.fullName,
+            phone: `0${order?.shippingAddress?.phone}`,
+            address: order?.shippingAddress?.address,
+            paymentMethod: orderContant.payment[order?.paymentMethod],
+            isPaid: order?.isPaid ? 'Đã thanh toán' : 'Chưa thanh toán',
+            isDelivered: order?.isDelivered ? 'Đã giao hàng' : 'Chưa giao hàng',
+            totalPrice: convertPrice(order?.totalPrice)
+        }
     })
 
     return (

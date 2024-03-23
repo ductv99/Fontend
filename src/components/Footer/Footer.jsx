@@ -15,7 +15,7 @@ const Footer = () => {
                         <span className="self-center text-4xl font-semibold" style={{ fontFamily: 'Redressed, sans-serif' }}>LD Store</span>
                     </a>
                 </div>
-                <div className="grid grid-cols-2 text-sm gap-x-3 gap-y-8 md:w-2/3 md:grid-cols-3">
+                <div className="grid grid-cols-2 text-md gap-x-3 gap-y-8 md:w-2/3 md:grid-cols-3">
                     <div className="space-y-3">
                         <h3 className="tracking-wide uppercase">Danh mục sản phẩm</h3>
                         <ul className="space-y-1">
@@ -80,7 +80,7 @@ const Footer = () => {
                     </div>
                 </div>
             </div>
-            <div className="py-6 text-sm text-center">© 2024 LD Store Co. All rights reserved.</div>
+            <div className="py-6 text-md text-center">© 2024 LD Store Co. All rights reserved.</div>
         </footer>
 
     );

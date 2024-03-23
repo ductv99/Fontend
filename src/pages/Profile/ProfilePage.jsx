@@ -34,7 +34,7 @@ const ProfilePage = () => {
     useEffect(() => {
         setEmail(user.email);
         setName(user.name);
-        setPhone(user.phone);
+        setPhone(`0${user.phone}`);
         setAddress(user.address);
         setAvatar(user.avatar);
     }, [user])

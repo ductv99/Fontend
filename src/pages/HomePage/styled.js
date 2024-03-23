@@ -5,10 +5,9 @@ export const WrapperTypeProduct = styled.div`
     display: flex;
     align-items: center;
     gap: 24px;
-    justify-content: flex-start;
+    justify-content: center;
     font-weight: bold;
-    font
-    height: 44px;
+    height: 40px;
 `
 
 export const WrapperButtonMore = styled(ButtonComponent)`

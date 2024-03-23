@@ -57,3 +57,14 @@ export const getAllOrder = async (access_token) => {
         })
     return res.data
 }
+
+
+
+export const createCart = async (data, access_token) => {
+    const res = await axiosJWT.post(`${process.env.REACT_APP_API_KEY}/order/create-cart/${data.user}`, data, {
+        headers: {
+            token: `Bearer ${access_token}`
+        }
+    })
+    return res.data
+}

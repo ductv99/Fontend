@@ -19,7 +19,8 @@ const HomePage = () => {
     const fetchProductAllType = async () => {
         const res = await ProductService.getAllProductType()
         if (res?.status === "OK") {
-            setCategory(res?.data)
+            const limitedData = res?.data.slice(0, 8);
+            setCategory(limitedData)
         }
     }
     useEffect(() => {
